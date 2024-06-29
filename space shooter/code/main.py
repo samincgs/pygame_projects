@@ -45,12 +45,17 @@ for i in range(20):
     Star(star_surf, all_sprites)
 player = Player((WINDOW_WIDTH / 2, WINDOW_HEIGHT/ 2 + 300), all_sprites)
 
+# custom events
+meteor_event = pygame.event.custom_type()
+pygame.time.set_timer(meteor_event, 500)
 
 while running:
     dt = clock.tick() / 1000
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        if event.type == meteor_event:
+            print("Meteor event")
      
     # draw the game
     all_sprites.update(dt)
