@@ -10,14 +10,21 @@ class Player(pygame.sprite.Sprite):
         self.direction = pygame.Vector2()
         self.speed = 400
         
-    def move(self):
+    def input(self):
         keys = pygame.key.get_pressed()
         
         self.direction.x = int(keys[pygame.K_RIGHT]) - int(keys[pygame.K_LEFT])
         self.direction.y = int(keys[pygame.K_DOWN]) - int(keys[pygame.K_UP])
         self.direction = self.direction.normalize() if self.direction.magnitude() > 0 else self.direction
         
-    def update(self, dt):
-        self.move()
-        
+    def move(self, dt):
         self.rect.center += self.direction * self.speed * dt
+    
+    def collision(self, direction):
+        pass
+    
+    def update(self, dt):
+        self.input()
+        self.move(dt)
+        
+        
