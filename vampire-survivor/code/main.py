@@ -21,7 +21,7 @@ class Game:
         
         # enemy timer
         self.enemy_event = pygame.event.custom_type()
-        pygame.time.set_timer(self.enemy_event, 300)
+        pygame.time.set_timer(self.enemy_event, 500)
         self.spawn_positions = []
         
         # groups
@@ -32,6 +32,14 @@ class Game:
         
         self.load_images()
         self.setup()
+        
+        # audio
+        self.shoot_sound = pygame.mixer.Sound(join('audio', 'shoot.wav'))
+        self.shoot_sound.set_volume(0.5)
+        self.impact_sound = pygame.mixer.Sound(join('audio', 'impact.ogg'))
+        self.impact_sound.set_volume(0.7)
+        self.music = pygame.mixer.Sound(join('audio', 'music.wav'))
+        self.music.play(loops=-1)
         
         # sprites
         
@@ -46,8 +54,10 @@ class Game:
         if mouse[0] and self.can_shoot:
             self.can_shoot = False
             self.shoot_time = pygame.time.get_ticks()
+            self.shoot_sound.play()
             pos = self.gun.rect.center + self.gun.player_direction * 50
             Bullet(self.bullet_surf, pos, self.gun.player_direction, (self.all_sprites, self.bullet_sprites))
+            
             
     def load_images(self):
         self.bullet_surf = pygame.image.load(join('images', 'gun', 'bullet.png')).convert_alpha()
@@ -60,15 +70,27 @@ class Game:
                 for file_name in sorted(file_names, key= lambda name: int(name.split('.')[0])):
                     image = pygame.image.load(join(folder_path, file_name)).convert_alpha()
                     self.enemy_frames[folder].append(image)
-       
-    
-       
+          
     def gun_timer(self):
         if not self.can_shoot:
             current_time = pygame.time.get_ticks()
             if current_time - self.shoot_time >= self.gun_cooldown:
                 self.can_shoot = True
     
+    def bullet_collision(self):
+        if self.bullet_sprites:
+            for bullet in self.bullet_sprites:
+                collision_sprites = pygame.sprite.spritecollide(bullet, self.enemy_sprites, False, pygame.sprite.collide_mask)
+                if collision_sprites:
+                    self.impact_sound.play()
+                    for sprite in collision_sprites:
+                        sprite.destroy() 
+                    bullet.kill()
+                    
+                    
+    def player_collision(self):
+        if pygame.sprite.spritecollide(self.player, self.enemy_sprites, False, pygame.sprite.collide_mask):
+            self.running = False
     
     def setup(self):
         map = load_pygame(join("data", "maps", "world.tmx"))
@@ -88,7 +110,6 @@ class Game:
             else:
                 self.spawn_positions.append((obj.x, obj.y))
        
- 
     def run(self):
         while self.running:
             # dt
@@ -104,6 +125,8 @@ class Game:
             # update
             self.input()
             self.gun_timer()
+            self.bullet_collision()
+            self.player_collision()
             self.all_sprites.update(dt)
             
             # draw
