@@ -1,4 +1,5 @@
 from settings import *
+from sprites import Bullet
 
 
 class Player(pygame.sprite.Sprite):
@@ -13,10 +14,9 @@ class Player(pygame.sprite.Sprite):
         self.hitbox_rect = self.rect.inflate(-60, -60)
         
         self.direction = pygame.Vector2()
-        self.speed = 600
+        self.speed = 500
         self.collision_sprites = collision_sprites
-        
-    
+
     def load_images(self):
         self.frames = {'down': [], 'up' : [], 'left': [], 'right': []}
       
@@ -46,7 +46,7 @@ class Player(pygame.sprite.Sprite):
         self.direction.x = int(keys[pygame.K_RIGHT]) - int(keys[pygame.K_LEFT])
         self.direction.y = int(keys[pygame.K_DOWN]) - int(keys[pygame.K_UP])
         self.direction = self.direction.normalize() if self.direction.magnitude() > 0 else self.direction
-        
+           
     def move(self, dt):
         self.hitbox_rect.x += self.direction.x * self.speed * dt
         self.collision('horizontal')
