@@ -4,14 +4,42 @@ from settings import *
 class Player(pygame.sprite.Sprite):
     def __init__(self, pos, groups, collision_sprites):
         super().__init__(groups)
-        self.image = pygame.image.load(join("images", "player", "down", "0.png" )).convert_alpha()
+        
+        self.load_images()
+        self.frame_index = 0
+        self.status = 'down'
+        self.image = self.frames[self.status][self.frame_index]
         self.rect = self.image.get_frect(center = pos)
-        self.hitbox_rect = self.rect.inflate(-60, -90)
+        self.hitbox_rect = self.rect.inflate(-60, -60)
         
         self.direction = pygame.Vector2()
         self.speed = 600
         self.collision_sprites = collision_sprites
         
+    
+    def load_images(self):
+        self.frames = {'down': [], 'up' : [], 'left': [], 'right': []}
+      
+        for i in self.frames.keys():  
+            for _, _, files in walk(join("images", "player", i)):
+                for file in sorted(files, key=lambda x: int(x.split('.')[0]) ):
+                    path = join("images", "player", i, file)
+                    surf = pygame.image.load(path).convert_alpha()
+                    self.frames[i].append(surf)
+            
+    def animate(self, dt):
+        
+        if self.direction.x != 0:
+            self.status = 'right' if self.direction.x > 0 else 'left'
+        if self.direction.y !=0:
+            self.status = 'down' if self.direction.y > 0 else 'up'
+        
+        self.frame_index = self.frame_index + 7 * dt if self.direction.magnitude() > 0 else 0
+        if self.frame_index >= len(self.frames[self.status]):
+            self.frame_index = 0
+            
+        self.image = self.frames[self.status][int(self.frame_index)]
+    
     def input(self):
         keys = pygame.key.get_pressed()
         
@@ -38,6 +66,7 @@ class Player(pygame.sprite.Sprite):
     
     def update(self, dt):
         self.input()
+        self.animate(dt)
         self.move(dt)
         
         
