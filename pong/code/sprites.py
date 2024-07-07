@@ -2,33 +2,49 @@ from settings import *
 from random import choice, uniform
 
 
-class Player(pygame.sprite.Sprite):
+class Paddle(pygame.sprite.Sprite):
     def __init__(self, groups):
         super().__init__(groups)
+        
         self.image = pygame.Surface(SIZE['paddle'], pygame.SRCALPHA)
         pygame.draw.rect(self.image, COLORS['paddle'], pygame.FRect((0, 0), (SIZE['paddle'])), 0, 5)
         self.rect = self.image.get_frect(center= POS['player'])
         self.old_rect = self.rect.copy()
         
         self.direction = 0
-        self.speed = SPEED['player']
+        
+    def move(self, dt):
+        self.rect.y += self.direction * self.speed * dt
+        if self.rect.top < 0: self.rect.top = 0
+        if self.rect.bottom > WINDOW_HEIGHT: self.rect.bottom = WINDOW_HEIGHT     
+    
+    def update(self, dt):
+        self.old_rect = self.rect.copy()
+        self.get_direction()
+        self.move(dt)    
+
+class Player(Paddle):
+    def __init__(self, groups):
+       super().__init__(groups)
+       
+       self.speed = SPEED['player']
         
     def get_direction(self):
         keys = pygame.key.get_pressed()
         
         self.direction = int(keys[pygame.K_DOWN]) - int(keys[pygame.K_UP])
     
-    def move(self, dt):
-        self.rect.y += self.direction * self.speed * dt
-        if self.rect.top < 0: self.rect.top = 0
-        if self.rect.bottom > WINDOW_HEIGHT: self.rect.bottom = WINDOW_HEIGHT
+class Opponent(Paddle):
+    def __init__(self, groups, ball):
+        super().__init__(groups)
+        self.rect = self.image.get_frect(center= POS['opponent'])
+        self.speed = SPEED['opponent']
+        self.ball = ball
     
-    
-    def update(self, dt):
-        self.old_rect = self.rect.copy()
-        self.get_direction()
-        self.move(dt)      
-        
+    def get_direction(self):
+        if self.ball.rect.centery > self.rect.centery: self.direction = 1
+        else: self.direction = -1
+                     
 class Ball(pygame.sprite.Sprite):
     def __init__(self, groups, paddle_sprites):
         super().__init__(groups)
