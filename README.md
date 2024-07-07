@@ -7,6 +7,13 @@ Welcome to my repository where I'm documenting my journey of learning the fundam
 
 ![pong](https://github.com/samincgs/pygame_projects/assets/129024887/7a790ce6-6046-4c2d-9fa7-fedacc585317)
 
+## Space Shooter
+
+![space shooter](https://github.com/samincgs/pygame_projects/assets/129024887/294e9776-ca6c-4b32-acb4-41adf6106f64)
+
+## Vampire Survivor
+
+![vampire survivor](https://github.com/samincgs/pygame_projects/assets/129024887/0b641411-d8ec-4be0-83aa-2e64b45268d4)
 
 
 [ClearCode](https://www.youtube.com/@ClearCode)
