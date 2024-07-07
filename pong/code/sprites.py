@@ -10,6 +10,9 @@ class Paddle(pygame.sprite.Sprite):
         self.rect = self.image.get_frect(center= POS['player'])
         self.old_rect = self.rect.copy()
         
+        self.shadow_surf = self.image.copy()
+        pygame.draw.rect(self.shadow_surf, COLORS['paddle shadow'], pygame.FRect((0, 0), (SIZE['paddle'])), 0, 5)
+        
         self.direction = 0
         
     def move(self, dt):
@@ -52,17 +55,25 @@ class Ball(pygame.sprite.Sprite):
         self.rect = self.image.get_frect(center = POS['ball'])
         self.old_rect = self.rect.copy()
         
+        self.shadow_surf = self.image.copy()
+        pygame.draw.circle(self.shadow_surf, COLORS['ball shadow'], (SIZE['ball'][0] / 2, SIZE['ball'][1] / 2), SIZE['ball'][1] / 2) 
+        
         self.direction = pygame.Vector2(choice((-1, 1)), choice((-1 , 1)) * uniform(0.7, 0.8) )
         self.speed = SPEED['ball']
         
         self.paddle_sprites = paddle_sprites
         
         self.update_score = update_score
+        
+        # timer
+        self.start_time = pygame.time.get_ticks()
+        self.duration = 800
+        self.speed_modifier = 0
 
     def move(self, dt):
-        self.rect.x += self.direction.x * self.speed * dt
+        self.rect.x += self.direction.x * self.speed * dt * self.speed_modifier
         self.collision('horizontal')
-        self.rect.y += self.direction.y * self.speed * dt
+        self.rect.y += self.direction.y * self.speed * dt * self.speed_modifier
         self.collision('vertical')
 
     def collision(self, direction):
@@ -83,7 +94,6 @@ class Ball(pygame.sprite.Sprite):
                         self.rect.top = sprite.rect.bottom
                         self.direction.y *= -1
                     
-
     def wall_collision(self):
         if self.rect.top <=0: 
             self.rect.top = 0
@@ -96,13 +106,21 @@ class Ball(pygame.sprite.Sprite):
             self.update_score('player' if self.rect.x < WINDOW_WIDTH /2 else 'opponent')
             self.reset()
         
-    
     def reset(self):
         self.rect.center = POS['ball']
-        self.direction = pygame.Vector2(choice((-1, 1)), choice((-1 , 1)) * uniform(0.7, 0.8) )
+        self.direction = pygame.Vector2(choice((-1, 1)), choice((-1 , 1)) * uniform(0.7, 0.8))
+        self.start_time = pygame.time.get_ticks()
+    
+    def timer(self):
+        current_time = pygame.time.get_ticks()
+        if current_time - self.start_time >= self.duration:
+            self.speed_modifier = 1
+        else:
+            self.speed_modifier = 0
     
     def update(self, dt):
         self.old_rect = self.rect.copy()
         self.move(dt)
+        self.timer()
         self.wall_collision()
         

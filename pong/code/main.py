@@ -1,5 +1,7 @@
 from settings import * 
 from sprites import *
+from groups import AllSprites
+
 
 class Game:
     def __init__(self):
@@ -10,7 +12,7 @@ class Game:
         self.running = True
         
         # groups
-        self.all_sprites = pygame.sprite.Group()
+        self.all_sprites = AllSprites()
         self.paddle_sprites = pygame.sprite.Group()
         
         # sprites
@@ -19,7 +21,11 @@ class Game:
         Opponent((self.all_sprites, self.paddle_sprites), self.ball)
         
         # score
-        self.score = SCORE
+        try:
+            with open(join("data", "score.txt")) as score_file:
+                self.score = json.load(score_file)
+        except:    
+            self.score = SCORE
         self.font = pygame.font.Font(None, 150)
         
     def display_score(self):
@@ -46,14 +52,15 @@ class Game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
-
+                    with open(join("data", "score.txt"), 'w') as score_file:
+                        json.dump(self.score, score_file)
             
 
             self.all_sprites.update(dt)
             
             self.display_surface.fill(COLORS['bg'])
             self.display_score()
-            self.all_sprites.draw(self.display_surface)
+            self.all_sprites.draw()
             pygame.display.update()
         
         
