@@ -1,6 +1,5 @@
 from settings import * 
-from player import Player
-from sprites import Ball
+from sprites import *
 
 class Game:
     def __init__(self):
@@ -11,9 +10,11 @@ class Game:
         self.running = True
         
         self.all_sprites = pygame.sprite.Group()
+        self.paddle_sprites = pygame.sprite.Group()
         
-        self.player = Player(POS['player'], SIZE['paddle'], self.all_sprites)
-        self.ball = Ball(SIZE['ball'], self.all_sprites)
+        self.player = Player((self.all_sprites, self.paddle_sprites))
+        self.ball = Ball(self.all_sprites, self.paddle_sprites)
+        
         
     def run(self):
         while self.running:
