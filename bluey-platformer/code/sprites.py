@@ -1,4 +1,5 @@
 from settings import *
+from timer import Timer
 
 class Sprite(pygame.sprite.Sprite):
     def __init__(self, pos, surf, groups):
@@ -23,10 +24,13 @@ class Player(AnimatedSprite):
     def __init__(self, pos, groups, collision_sprites, frames):
         super().__init__(pos, frames, groups)
         
+        # movement
         self.direction = pygame.Vector2()
         self.speed = 300
         self.gravity = 50
         self.on_floor = False
+        
+        self.shoot_timer = Timer(500)
         
         self.flip = False
         self.collision_sprites = collision_sprites
@@ -37,6 +41,10 @@ class Player(AnimatedSprite):
         self.direction.x = int(keys[pygame.K_RIGHT]) - int(keys[pygame.K_LEFT])
         if keys[pygame.K_SPACE] and self.on_floor:
             self.direction.y = -20
+        if keys[pygame.K_s] and not self.shoot_timer.active:
+            print('bullet')
+            self.shoot_timer.activate()
+        
              
     def move(self, dt):
         # horizontal
@@ -77,6 +85,7 @@ class Player(AnimatedSprite):
         self.image = pygame.transform.flip(self.image, self.flip, False)
   
     def update(self, dt):
+        self.shoot_timer.update()
         self.check_floor()
         self.input()
         self.move(dt)
