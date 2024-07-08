@@ -19,7 +19,43 @@ class AnimatedSprite(Sprite):
         self.frame_index += self.animation_speed * dt
         if self.frame_index >= len(self.frames): self.frame_index = 0
         self.image = self.frames[int(self.frame_index)]
+
+class Bullet(Sprite):
+    def __init__(self, surf, pos, direction, groups):
+        super().__init__(pos, surf, groups)
+        
+        #adjustment
+        self.image = pygame.transform.flip(self.image, direction == -1, False)
+        
+        # movement
+        self.direction = direction
+        self.speed = 850
     
+    def update(self, dt):
+        self.rect.x += self.direction * self.speed * dt
+
+class Fire(Sprite):
+    def __init__(self, surf, pos, groups, player):
+        super().__init__(pos, surf, groups)
+        self.player = player
+        self.flip = player.flip
+        self.timer = Timer(100, autostart = True, func = self.kill)
+        self.y_offset = pygame.Vector2(0, 8)
+        
+        if self.flip:
+            self.rect.midright = self.player.rect.midleft  + self.y_offset
+            self.image = pygame.transform.flip(self.image, True, False)
+        else:
+            self.rect.midleft = self.player.rect.midright + self.y_offset
+    
+    def update(self, _):
+        self.timer.update()
+        
+        if self.flip:
+            self.rect.midright = self.player.rect.midleft + self.y_offset
+        else:
+            self.rect.midleft = self.player.rect.midright + self.y_offset
+
 class Player(AnimatedSprite):
     def __init__(self, pos, groups, collision_sprites, frames, create_bullet):
         super().__init__(pos, frames, groups)
@@ -92,20 +128,6 @@ class Player(AnimatedSprite):
         self.input()
         self.move(dt)
         self.animate(dt)
-
-class Bullet(Sprite):
-    def __init__(self, surf, pos, direction, groups):
-        super().__init__(pos, surf, groups)
-        
-        #adjustment
-        self.image = pygame.transform.flip(self.image, direction == -1, False)
-        
-        # movement
-        self.direction = direction
-        self.speed = 850
-    
-    def update(self, dt):
-        self.rect.x += self.direction * self.speed * dt
 
 class Bee(AnimatedSprite):
     def __init__(self, pos, frames, groups):
