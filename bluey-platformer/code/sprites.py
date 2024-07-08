@@ -70,6 +70,8 @@ class Player(AnimatedSprite):
             self.flip = self.direction.x < 0    
         else: self.frame_index = 0
         
+        if not self.on_floor: self.frame_index = 1
+        
         if self.frame_index >= len(self.frames): self.frame_index = 0
         self.image = self.frames[int(self.frame_index)]
         self.image = pygame.transform.flip(self.image, self.flip, False)
@@ -78,4 +80,18 @@ class Player(AnimatedSprite):
         self.check_floor()
         self.input()
         self.move(dt)
+        self.animate(dt)
+        
+class Bee(AnimatedSprite):
+    def __init__(self, pos, frames, groups):
+        super().__init__(pos, frames, groups)
+        
+    def update(self, dt):
+        self.animate(dt)
+        
+class Worm(AnimatedSprite):
+    def __init__(self, pos, frames, groups):
+        super().__init__(pos, frames, groups)
+        
+    def update(self, dt):
         self.animate(dt)

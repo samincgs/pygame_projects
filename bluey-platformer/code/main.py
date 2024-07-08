@@ -30,6 +30,8 @@ class Game:
         self.fire_surf = import_image('images', 'gun', 'fire')
         
         #sounds
+        self.audio = audio_importer('audio')
+    
     
     def setup(self):
         map = load_pygame(join('data', 'maps', 'world.tmx'))
@@ -43,6 +45,9 @@ class Game:
         for obj in map.get_layer_by_name('Entities'):
             if obj.name == 'Player':
                 self.player = Player((obj.x, obj.y), self.all_sprites, self.collision_sprites, self.player_frames)
+            
+        Bee((500, 600), self.bee_frames, self.all_sprites) 
+        Worm((700, 600), self.worm_frames, self.all_sprites)    
     
       
     def run(self):
