@@ -1,9 +1,11 @@
 from settings import *
 from sprites import *
 from groups import AllSprites
+from support import *
 
 class Game:
     def __init__(self):
+        # setup
         pygame.init()
         self.display_surface = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
         pygame.display.set_caption('Bluey')
@@ -14,8 +16,17 @@ class Game:
         self.all_sprites = AllSprites()
         self.collision_sprites = pygame.sprite.Group()
         
-        #setup
+        #load game
+        self.load_assets()
         self.setup()
+    
+    
+    def load_assets(self):
+        #graphics
+        self.player_frames = import_folder('images', 'player')
+        self.bullet_surf = import_image('images', 'gun', 'bullet')
+        
+        #sounds
     
     def setup(self):
         map = load_pygame(join('data', 'maps', 'world.tmx'))
