@@ -1,5 +1,6 @@
 from settings import *
-
+from sprites import *
+from groups import AllSprites
 
 class Game:
     def __init__(self):
@@ -8,12 +9,26 @@ class Game:
         pygame.display.set_caption('Bluey')
         self.clock = pygame.time.Clock()
         self.running = True
+        
+        # groups
+        self.all_sprites = AllSprites()
+        self.collision_sprites = pygame.sprite.Group()
+        
+        #setup
+        self.setup()
     
-    def setup():
+    def setup(self):
         map = load_pygame(join('data', 'maps', 'world.tmx'))
         
         for x, y, image in map.get_layer_by_name('Main').tiles():
-            pass
+            Sprite((x * TILE_SIZE, y * TILE_SIZE), image, (self.all_sprites, self.collision_sprites))
+            
+        for x, y, image, in map.get_layer_by_name('Decoration').tiles():
+            Sprite((x * TILE_SIZE, y * TILE_SIZE), image, self.all_sprites)
+        
+        for obj in map.get_layer_by_name('Entities'):
+            if obj.name == 'Player':
+                self.player = Player((obj.x, obj.y), self.all_sprites, self.collision_sprites)
     
       
     def run(self):
@@ -23,8 +38,13 @@ class Game:
                 if event.type == pygame.QUIT:
                     self.running = False
             
-            self.display_surface.fill(BG_COLOR)
             
+            
+            #update
+            self.all_sprites.update(dt)
+            # draw
+            self.display_surface.fill(BG_COLOR)
+            self.all_sprites.draw(self.player.rect.center)
             pygame.display.update()
         
         pygame.quit()
