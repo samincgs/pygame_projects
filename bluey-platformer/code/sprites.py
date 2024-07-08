@@ -21,7 +21,7 @@ class AnimatedSprite(Sprite):
         self.image = self.frames[int(self.frame_index)]
     
 class Player(AnimatedSprite):
-    def __init__(self, pos, groups, collision_sprites, frames):
+    def __init__(self, pos, groups, collision_sprites, frames, create_bullet):
         super().__init__(pos, frames, groups)
         
         # movement
@@ -34,6 +34,8 @@ class Player(AnimatedSprite):
         
         self.flip = False
         self.collision_sprites = collision_sprites
+        
+        self.create_bullet = create_bullet
     
     def input(self):
         keys = pygame.key.get_pressed()
@@ -41,8 +43,8 @@ class Player(AnimatedSprite):
         self.direction.x = int(keys[pygame.K_RIGHT]) - int(keys[pygame.K_LEFT])
         if keys[pygame.K_SPACE] and self.on_floor:
             self.direction.y = -20
-        if keys[pygame.K_s] and not self.shoot_timer.active:
-            print('bullet')
+        if keys[pygame.K_s] and not self.shoot_timer:
+            self.create_bullet(self.rect.center, -1 if self.flip else 1)
             self.shoot_timer.activate()
         
              
@@ -90,7 +92,21 @@ class Player(AnimatedSprite):
         self.input()
         self.move(dt)
         self.animate(dt)
+
+class Bullet(Sprite):
+    def __init__(self, surf, pos, direction, groups):
+        super().__init__(pos, surf, groups)
         
+        #adjustment
+        self.image = pygame.transform.flip(self.image, direction == -1, False)
+        
+        # movement
+        self.direction = direction
+        self.speed = 850
+    
+    def update(self, dt):
+        self.rect.x += self.direction * self.speed * dt
+
 class Bee(AnimatedSprite):
     def __init__(self, pos, frames, groups):
         super().__init__(pos, frames, groups)
