@@ -24,7 +24,10 @@ class Game:
     def load_assets(self):
         #graphics
         self.player_frames = import_folder('images', 'player')
+        self.bee_frames = import_folder('images', 'enemies', 'bee')
+        self.worm_frames = import_folder('images', 'enemies', 'worm')
         self.bullet_surf = import_image('images', 'gun', 'bullet')
+        self.fire_surf = import_image('images', 'gun', 'fire')
         
         #sounds
     
@@ -39,7 +42,7 @@ class Game:
         
         for obj in map.get_layer_by_name('Entities'):
             if obj.name == 'Player':
-                self.player = Player((obj.x, obj.y), self.all_sprites, self.collision_sprites)
+                self.player = Player((obj.x, obj.y), self.all_sprites, self.collision_sprites, self.player_frames)
     
       
     def run(self):
