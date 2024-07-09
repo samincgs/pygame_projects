@@ -1,5 +1,6 @@
 from settings import *
 from timer import Timer
+from math import sin
 
 class Sprite(pygame.sprite.Sprite):
     def __init__(self, pos, surf, groups):
@@ -55,6 +56,9 @@ class Fire(Sprite):
             self.rect.midright = self.player.rect.midleft + self.y_offset
         else:
             self.rect.midleft = self.player.rect.midright + self.y_offset
+            
+        if self.flip != self.player.flip:
+            self.kill()    
 
 class Player(AnimatedSprite):
     def __init__(self, pos, groups, collision_sprites, frames, create_bullet):
@@ -129,16 +133,52 @@ class Player(AnimatedSprite):
         self.move(dt)
         self.animate(dt)
 
-class Bee(AnimatedSprite):
+class Enemy(AnimatedSprite):
     def __init__(self, pos, frames, groups):
         super().__init__(pos, frames, groups)
-        
+        self.death_timer = Timer(200, func = self.kill)
+    
+    def destroy(self):
+        self.death_timer.activate()
+        self.animation_speed = 0
+        self.image = pygame.mask.from_surface(self.image).to_surface()
+        self.image.set_colorkey((0, 0, 0))
+    
     def update(self, dt):
-        self.animate(dt)
-        
-class Worm(AnimatedSprite):
-    def __init__(self, pos, frames, groups):
+        self.death_timer.update()
+        if not self.death_timer:
+            self.move(dt)
+            self.animate(dt)
+        self.constraint()
+
+class Bee(Enemy):
+    def __init__(self, pos, frames, speed, groups):
         super().__init__(pos, frames, groups)
+        self.speed = speed
+        self.amplitude = randint(500, 600)
+        self.frequency = randint(300, 600)
+    
+    def move(self, dt):
+        self.rect.x -=  self.speed * dt
+        self.rect.y += sin(pygame.time.get_ticks() / self.frequency) * self.amplitude * dt
+    
+    def constraint(self):
+        if self.rect.right <= 0: self.kill()
         
-    def update(self, dt):
-        self.animate(dt)
+class Worm(Enemy):
+    def __init__(self, rect, frames, groups):
+        super().__init__(rect.topleft, frames, groups)
+        self.main_rect = rect
+        self.rect.bottomleft = rect.bottomleft
+        self.speed = randint(160, 200)
+        self.direction = 1
+    
+    def move(self, dt):
+        self.rect.x += self.direction * self.speed * dt
+    
+    def constraint(self):
+        if not self.main_rect.contains(self.rect):
+            self.direction *= -1
+            self.frames = [pygame.transform.flip(surf, True, False) for surf in self.frames]
+            
+    
