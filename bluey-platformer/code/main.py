@@ -63,7 +63,7 @@ class Game:
             if obj.name == 'Worm':
                 Worm(pygame.FRect(obj.x, obj.y, obj.width, obj.height), self.worm_frames, (self.all_sprites, self.enemy_sprites))  
         
-        # self.audio['music'].play(loops = -1)
+        self.audio['music'].play(loops = -1)
         
     def collision(self):
         # bullets and enemies
