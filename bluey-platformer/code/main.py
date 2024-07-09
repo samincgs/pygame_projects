@@ -70,7 +70,11 @@ class Game:
                 bullet.kill()
                 for sprite in sprite_collisions:
                     sprite.destroy()
-        
+                    
+        # player and enemies
+        if pygame.sprite.spritecollide(self.player, self.enemy_sprites, False, pygame.sprite.collide_mask):
+            self.running = False
+                  
     def run(self):
         while self.running:
             dt = self.clock.tick(FRAMERATE) / 1000
