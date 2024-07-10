@@ -13,12 +13,9 @@ class Game:
         self.running = True
         self.import_assets()
         
-        
         #groups
         self.all_sprites = pygame.sprite.Group()
-        
-        
-        
+ 
         #data #player
         player_monster_list = ['Sparchu', 'Cleaf', 'Jacana', 'Gulfin', 'Pouch', 'Larvea']
         self.player_monsters = [Monster(name, self.back_surfs[name]) for name in player_monster_list]
@@ -50,8 +47,7 @@ class Game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
-            
-            
+  
             #update
             self.all_sprites.update(dt)
             self.ui.update()
@@ -65,9 +61,6 @@ class Game:
             
             
         pygame.quit()
-        
-        
-        
         
 if __name__ == '__main__':
     Game().run()
