@@ -19,12 +19,19 @@ class Main:
     def setup(self):
         tmx_map = load_pygame(join('data', 'map.tmx'))
         
+        # tiles
         for x,y,surf in tmx_map.get_layer_by_name('Level').tiles():
-            Tile((x * TILE_SIZE, y * TILE_SIZE), surf, self.all_sprites)
+            Tile((x * TILE_SIZE, y * TILE_SIZE), surf, self.all_sprites, LAYERS['main'])
         
+        for layer in ['BG', 'BG Detail', 'FG Detail Bottom', 'FG Detail Top']:
+            for x,y,surf in tmx_map.get_layer_by_name(layer).tiles():
+                Tile((x * TILE_SIZE, y * TILE_SIZE), surf, self.all_sprites, LAYERS[layer.lower()])  
+        
+        
+        # objects
         for obj in tmx_map.get_layer_by_name('Entities'):
             if obj.name == 'Player':
-                self.player = Player((obj.x, obj.y), self.all_sprites)
+                self.player = Player((obj.x, obj.y), self.all_sprites, join('graphics', 'player'))
         
     def run(self):
         while True:
@@ -52,7 +59,7 @@ class AllSprites(pygame.sprite.Group):
         self.offset.x = player.rect.centerx - WINDOW_WIDTH / 2
         self.offset.y = player.rect.centery - WINDOW_HEIGHT / 2
         
-        for sprite in self.sprites():
+        for sprite in sorted(self.sprites(), key= lambda sprite: sprite.z):
             offset_rect = sprite.image.get_rect(center = sprite.rect.center)
             offset_rect.center -= self.offset
             self.screen.blit(sprite.image, offset_rect)
