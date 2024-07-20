@@ -2,7 +2,7 @@ import pygame, sys
 from settings import *
 from pytmx.util_pygame import load_pygame
 from os.path import join
-from tile import Tile
+from tile import Tile, CollisionTile
 from player import Player
 
 class Main:
@@ -14,6 +14,7 @@ class Main:
         
         #groups
         self.all_sprites = AllSprites()
+        self.collision_sprites = pygame.sprite.Group()
         self.setup()
     
     def setup(self):
@@ -21,7 +22,7 @@ class Main:
         
         # tiles
         for x,y,surf in tmx_map.get_layer_by_name('Level').tiles():
-            Tile((x * TILE_SIZE, y * TILE_SIZE), surf, self.all_sprites, LAYERS['main'])
+            CollisionTile((x * TILE_SIZE, y * TILE_SIZE), surf, (self.all_sprites, self.collision_sprites))
         
         for layer in ['BG', 'BG Detail', 'FG Detail Bottom', 'FG Detail Top']:
             for x,y,surf in tmx_map.get_layer_by_name(layer).tiles():
@@ -31,7 +32,7 @@ class Main:
         # objects
         for obj in tmx_map.get_layer_by_name('Entities'):
             if obj.name == 'Player':
-                self.player = Player((obj.x, obj.y), self.all_sprites, join('graphics', 'player'))
+                self.player = Player((obj.x, obj.y), self.all_sprites, join('graphics', 'player'), self.collision_sprites)
         
     def run(self):
         while True:
