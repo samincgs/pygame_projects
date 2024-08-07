@@ -21,6 +21,12 @@ class Player(pygame.sprite.Sprite):
         # collision
         self.collision_sprites = collision_sprites
         self.old_rect = self.rect.copy()
+        
+        # vertical movement
+        self.gravity = 15
+        self.jump_speed = 1200
+        self.on_floor = False
+        self.duck = False
     
     def import_assets(self, path):
         self.animations = {}
@@ -45,13 +51,14 @@ class Player(pygame.sprite.Sprite):
             self.direction.x = -1
         else:
             self.direction.x = 0
-            
+        
         if keys[pygame.K_UP]:
-            self.direction.y = -1
-        elif keys[pygame.K_DOWN]:
-            self.direction.y = 1
+            self.direction.y = -self.speed
+            
+        if keys[pygame.K_DOWN]:
+            self.duck = True
         else:
-            self.direction.y = 0
+            self.duck = False
      
     def collision(self, direction):
         for sprite in self.collision_sprites:
@@ -68,13 +75,16 @@ class Player(pygame.sprite.Sprite):
                     if self.rect.top <= sprite.rect.bottom and self.old_rect.top >= sprite.old_rect.bottom:
                         self.rect.top = sprite.rect.bottom
                     self.pos.y = self.rect.y
+                    self.direction.y = 0
             
     def move(self, dt):
         self.pos.x += self.direction.x * self.speed * dt
         self.rect.x = round(self.pos.x)
         self.collision('horizontal')
         
-        self.pos.y += self.direction.y * self.speed * dt
+        #gravity
+        self.direction.y += self.gravity
+        self.pos.y += self.direction.y * dt
         self.rect.y = round(self.pos.y)
         self.collision('vertical')
        
